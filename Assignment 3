@@ -1,0 +1,122 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iomanip>
+using namespace std;
+
+struct Item {
+    int id;
+    string name;
+    double weight;
+    double utility;
+    bool divisible;
+    double ratio;
+};
+
+// Compare items by utility-to-weight ratio
+bool compare(Item a, Item b) {
+    return a.ratio > b.ratio;
+}
+
+int main() {
+    int n;
+    double capacity;
+
+    cout << "Enter boat capacity (kg): ";
+    cin >> capacity;
+
+    cout << "Enter number of relief items: ";
+    cin >> n;
+
+    vector<Item> items(n);
+
+    // Input item details
+    for (int i = 0; i < n; i++) {
+        cout << "\nEnter details for Item " << i + 1 << ":\n";
+
+        cout << "Item ID: ";
+        cin >> items[i].id;
+
+        cout << "Item Name: ";
+        cin >> items[i].name;
+
+        cout << "Weight (kg): ";
+        cin >> items[i].weight;
+
+        cout << "Utility Value: ";
+        cin >> items[i].utility;
+
+        cout << "Divisible? (1 = Yes, 0 = No): ";
+        cin >> items[i].divisible;
+
+        // Calculate utility-to-weight ratio
+        items[i].ratio = items[i].utility / items[i].weight;
+    }
+
+    // Sort items by decreasing utility-to-weight ratio
+    sort(items.begin(), items.end(), compare);
+
+    double currentWeight = 0;
+    double totalUtility = 0;
+
+    cout << "\n========== SELECTED RELIEF SUPPLIES ==========\n";
+
+    cout << fixed << setprecision(2);
+
+    for (int i = 0; i < n; i++) {
+
+        if (currentWeight >= capacity)
+            break;
+
+        double remainingCapacity = capacity - currentWeight;
+
+        // Complete item fits
+        if (items[i].weight <= remainingCapacity) {
+
+            currentWeight += items[i].weight;
+            totalUtility += items[i].utility;
+
+            cout << items[i].name
+                 << " -> 100% selected"
+                 << " | Weight: " << items[i].weight
+                 << " kg | Utility: " << items[i].utility
+                 << endl;
+        }
+
+        // Item does not completely fit
+        else {
+
+            // Only divisible items can be partially selected
+            if (items[i].divisible) {
+
+                double fraction = remainingCapacity / items[i].weight;
+                double selectedUtility = items[i].utility * fraction;
+
+                currentWeight += remainingCapacity;
+                totalUtility += selectedUtility;
+
+                cout << items[i].name
+                     << " -> " << fraction * 100 << "% selected"
+                     << " | Weight: " << remainingCapacity
+                     << " kg | Utility: " << selectedUtility
+                     << endl;
+            }
+
+            // Indivisible item is skipped
+            else {
+                cout << items[i].name
+                     << " -> Skipped (indivisible and does not fit)"
+                     << endl;
+            }
+        }
+    }
+
+    cout << "\n========== FINAL RESULT ==========\n";
+    cout << "Total Weight Transported: "
+         << currentWeight << " kg" << endl;
+
+    cout << "Maximum Utility Value: "
+         << totalUtility << endl;
+
+    return 0;
+}
