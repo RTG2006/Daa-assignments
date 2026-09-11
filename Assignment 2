@@ -1,0 +1,115 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+struct Movie {
+    string name;
+    float imdbRating;
+    int releaseYear;
+    int watchTime;
+};
+
+// Partition function
+int partition(vector<Movie>& movies, int low, int high, int choice) {
+    Movie pivot = movies[high];
+    int i = low - 1;
+
+    for (int j = low; j < high; j++) {
+
+        bool condition = false;
+
+        if (choice == 1) {
+            // Sort by IMDb Rating
+            condition = movies[j].imdbRating <= pivot.imdbRating;
+        }
+        else if (choice == 2) {
+            // Sort by Release Year
+            condition = movies[j].releaseYear <= pivot.releaseYear;
+        }
+        else if (choice == 3) {
+            // Sort by Watch Time
+            condition = movies[j].watchTime <= pivot.watchTime;
+        }
+
+        if (condition) {
+            i++;
+            swap(movies[i], movies[j]);
+        }
+    }
+
+    swap(movies[i + 1], movies[high]);
+
+    return i + 1;
+}
+
+// Quick Sort
+void quickSort(vector<Movie>& movies, int low, int high, int choice) {
+    if (low < high) {
+        int pivotIndex = partition(movies, low, high, choice);
+
+        quickSort(movies, low, pivotIndex - 1, choice);
+        quickSort(movies, pivotIndex + 1, high, choice);
+    }
+}
+
+// Display movies
+void displayMovies(const vector<Movie>& movies) {
+    cout << "\n========== MOVIE LIST ==========\n";
+
+    for (const auto& movie : movies) {
+        cout << "Movie: " << movie.name
+             << " | IMDb: " << movie.imdbRating
+             << " | Year: " << movie.releaseYear
+             << " | Watch Time: " << movie.watchTime << " min\n";
+    }
+}
+
+int main() {
+    int n;
+
+    cout << "Enter number of movies: ";
+    cin >> n;
+
+    vector<Movie> movies(n);
+
+    // Input movie details
+    for (int i = 0; i < n; i++) {
+        cout << "\nEnter details for Movie " << i + 1 << ":\n";
+
+        cout << "Movie Name: ";
+        cin.ignore();
+        getline(cin, movies[i].name);
+
+        cout << "IMDb Rating: ";
+        cin >> movies[i].imdbRating;
+
+        cout << "Release Year: ";
+        cin >> movies[i].releaseYear;
+
+        cout << "Watch Time (minutes): ";
+        cin >> movies[i].watchTime;
+    }
+
+    int choice;
+
+    cout << "\n========== SORT OPTIONS ==========\n";
+    cout << "1. Sort by IMDb Rating\n";
+    cout << "2. Sort by Release Year\n";
+    cout << "3. Sort by Watch Time\n";
+    cout << "Enter your choice: ";
+    cin >> choice;
+
+    if (choice < 1 || choice > 3) {
+        cout << "\nInvalid choice!";
+        return 0;
+    }
+
+    // Apply Quick Sort
+    quickSort(movies, 0, n - 1, choice);
+
+    // Display sorted movies
+    displayMovies(movies);
+
+    return 0;
+}
