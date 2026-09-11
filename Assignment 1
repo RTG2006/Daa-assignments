@@ -1,0 +1,98 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+struct CustomerOrder {
+    int orderId;
+    string timestamp;
+};
+
+// Merge two sorted halves
+void merge(vector<CustomerOrder>& orders, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    vector<CustomerOrder> L(n1);
+    vector<CustomerOrder> R(n2);
+
+    // Copy data
+    for (int i = 0; i < n1; i++)
+        L[i] = orders[left + i];
+
+    for (int j = 0; j < n2; j++)
+        R[j] = orders[mid + 1 + j];
+
+    int i = 0, j = 0, k = left;
+
+    // Merge in timestamp order
+    while (i < n1 && j < n2) {
+        if (L[i].timestamp <= R[j].timestamp) {
+            orders[k] = L[i];
+            i++;
+        } else {
+            orders[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    // Copy remaining elements of L
+    while (i < n1) {
+        orders[k] = L[i];
+        i++;
+        k++;
+    }
+
+    // Copy remaining elements of R
+    while (j < n2) {
+        orders[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+// Merge Sort
+void mergeSort(vector<CustomerOrder>& orders, int left, int right) {
+    if (left >= right)
+        return;
+
+    int mid = left + (right - left) / 2;
+
+    mergeSort(orders, left, mid);
+    mergeSort(orders, mid + 1, right);
+
+    merge(orders, left, mid, right);
+}
+
+int main() {
+    int n;
+
+    cout << "Enter number of customer orders: ";
+    cin >> n;
+
+    vector<CustomerOrder> orders(n);
+
+    // Input customer orders
+    for (int i = 0; i < n; i++) {
+        cout << "\nEnter Order ID: ";
+        cin >> orders[i].orderId;
+
+        cout << "Enter Timestamp (YYYY-MM-DD HH:MM:SS): ";
+        cin.ignore();
+        getline(cin, orders[i].timestamp);
+    }
+
+    // Sort orders by timestamp
+    mergeSort(orders, 0, n - 1);
+
+    // Display sorted orders
+    cout << "\n===== SORTED CUSTOMER ORDERS =====\n";
+
+    for (const auto& order : orders) {
+        cout << "Order ID: " << order.orderId
+             << " | Timestamp: " << order.timestamp << endl;
+    }
+
+    return 0;
+}
