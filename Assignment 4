@@ -1,0 +1,132 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <climits>
+using namespace std;
+
+typedef pair<int, int> pii;
+
+// Dijkstra's Algorithm
+void dijkstra(int source, int V,
+              vector<vector<pii>>& graph,
+              vector<int>& dist) {
+
+    // Min-priority queue
+    priority_queue<pii, vector<pii>, greater<pii>> pq;
+
+    dist[source] = 0;
+    pq.push({0, source});
+
+    while (!pq.empty()) {
+
+        int currentDist = pq.top().first;
+        int u = pq.top().second;
+        pq.pop();
+
+        // Ignore outdated entry
+        if (currentDist > dist[u])
+            continue;
+
+        // Relax all adjacent edges
+        for (auto edge : graph[u]) {
+
+            int v = edge.first;
+            int weight = edge.second;
+
+            if (dist[v] > dist[u] + weight) {
+                dist[v] = dist[u] + weight;
+                pq.push({dist[v], v});
+            }
+        }
+    }
+}
+
+int main() {
+
+    int V, E;
+
+    cout << "Enter number of intersections: ";
+    cin >> V;
+
+    cout << "Enter number of roads: ";
+    cin >> E;
+
+    vector<vector<pii>> graph(V);
+
+    // Input roads
+    cout << "\nEnter roads as: Source Destination TravelTime\n";
+
+    for (int i = 0; i < E; i++) {
+
+        int u, v, w;
+        cin >> u >> v >> w;
+
+        // Undirected graph
+        graph[u].push_back({v, w});
+        graph[v].push_back({u, w});
+    }
+
+    int source;
+
+    cout << "\nEnter ambulance source node: ";
+    cin >> source;
+
+    // Distance array
+    vector<int> dist(V, INT_MAX);
+
+    // Run Dijkstra
+    dijkstra(source, V, graph, dist);
+
+    // Display shortest distances
+    cout << "\n===== SHORTEST TRAVEL TIMES =====\n";
+
+    for (int i = 0; i < V; i++) {
+
+        cout << "Node " << i << " : ";
+
+        if (dist[i] == INT_MAX)
+            cout << "INF";
+        else
+            cout << dist[i] << " minutes";
+
+        cout << endl;
+    }
+
+    // Hospital nodes
+    int H;
+
+    cout << "\nEnter number of hospitals: ";
+    cin >> H;
+
+    int nearestHospital = -1;
+    int minimumTime = INT_MAX;
+
+    cout << "Enter hospital node numbers:\n";
+
+    for (int i = 0; i < H; i++) {
+
+        int hospital;
+        cin >> hospital;
+
+        if (dist[hospital] < minimumTime) {
+            minimumTime = dist[hospital];
+            nearestHospital = hospital;
+        }
+    }
+
+    // Display nearest hospital
+    cout << "\n===== NEAREST HOSPITAL =====\n";
+
+    if (nearestHospital == -1 || minimumTime == INT_MAX) {
+        cout << "No hospital reachable." << endl;
+    }
+    else {
+        cout << "Nearest Hospital: Node "
+             << nearestHospital << endl;
+
+        cout << "Minimum Travel Time: "
+             << minimumTime << " minutes" << endl;
+    }
+
+    return 0;
+}
