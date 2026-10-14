@@ -1,0 +1,248 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <limits>
+using namespace std;
+
+struct Room {
+    string name;
+    int capacity;
+};
+
+int main() {
+    int numCourses;
+
+    cout << "Enter number of courses: ";
+    cin >> numCourses;
+
+    if (numCourses <= 0) {
+        cout << "Invalid number of courses.\n";
+        return 1;
+    }
+
+    vector<string> courses(numCourses);
+
+    cout << "Enter course codes:\n";
+    for (int i = 0; i < numCourses; i++) {
+        cin >> courses[i];
+    }
+
+    int numStudents;
+
+    cout << "Enter number of students: ";
+    cin >> numStudents;
+
+    if (numStudents < 0) {
+        cout << "Invalid number of students.\n";
+        return 1;
+    }
+
+    vector<int> studentCount(numCourses, 0);
+
+    vector<vector<bool>> adj(
+        numCourses,
+        vector<bool>(numCourses, false)
+    );
+
+    cout << "Enter student enrolments as:\n";
+    cout << "student_id number_of_courses course1 course2 ...\n";
+
+    for (int i = 0; i < numStudents; i++) {
+        string studentId;
+        int count;
+
+        cin >> studentId >> count;
+
+        vector<int> enrolled;
+
+        for (int j = 0; j < count; j++) {
+            string code;
+            cin >> code;
+
+            auto it = find(
+                courses.begin(),
+                courses.end(),
+                code
+            );
+
+            if (it == courses.end()) {
+                cout << "Unknown course: " << code << endl;
+                continue;
+            }
+
+            int index = it - courses.begin();
+
+            enrolled.push_back(index);
+            studentCount[index]++;
+        }
+
+        sort(enrolled.begin(), enrolled.end());
+
+        enrolled.erase(
+            unique(enrolled.begin(), enrolled.end()),
+            enrolled.end()
+        );
+
+        // Courses taken by the same student conflict.
+        for (int a = 0; a < (int)enrolled.size(); a++) {
+            for (int b = a + 1; b < (int)enrolled.size(); b++) {
+                int u = enrolled[a];
+                int v = enrolled[b];
+
+                adj[u][v] = true;
+                adj[v][u] = true;
+            }
+        }
+    }
+
+    int numRooms;
+
+    cout << "Enter number of available classrooms: ";
+    cin >> numRooms;
+
+    if (numRooms < 0) {
+        cout << "Invalid number of rooms.\n";
+        return 1;
+    }
+
+    vector<Room> rooms(numRooms);
+
+    cout << "Enter room name and capacity:\n";
+
+    for (int i = 0; i < numRooms; i++) {
+        cin >> rooms[i].name >> rooms[i].capacity;
+
+        if (rooms[i].capacity < 0) {
+            cout << "Invalid room capacity.\n";
+            return 1;
+        }
+    }
+
+    // Calculate the degree of each course.
+    vector<int> degree(numCourses, 0);
+
+    for (int i = 0; i < numCourses; i++) {
+        for (int j = 0; j < numCourses; j++) {
+            if (adj[i][j]) {
+                degree[i]++;
+            }
+        }
+    }
+
+    // Welsh-Powell-style ordering:
+    // process courses in descending order of degree.
+    vector<int> order(numCourses);
+
+    for (int i = 0; i < numCourses; i++) {
+        order[i] = i;
+    }
+
+    sort(order.begin(), order.end(), [&](int a, int b) {
+        if (degree[a] != degree[b]) {
+            return degree[a] > degree[b];
+        }
+
+        return courses[a] < courses[b];
+    });
+
+    // Greedy graph colouring.
+    vector<int> colour(numCourses, -1);
+
+    for (int u : order) {
+        vector<bool> used(numCourses, false);
+
+        for (int v = 0; v < numCourses; v++) {
+            if (adj[u][v] && colour[v] != -1) {
+                used[colour[v]] = true;
+            }
+        }
+
+        int c = 0;
+
+        while (c < numCourses && used[c]) {
+            c++;
+        }
+
+        colour[u] = c;
+    }
+
+    int maxColour = *max_element(
+        colour.begin(),
+        colour.end()
+    );
+
+    vector<string> assignedRoom(
+        numCourses,
+        "Unassigned"
+    );
+
+    // Allocate rooms separately for each time slot.
+    for (int slot = 0; slot <= maxColour; slot++) {
+        vector<int> slotCourses;
+
+        for (int i = 0; i < numCourses; i++) {
+            if (colour[i] == slot) {
+                slotCourses.push_back(i);
+            }
+        }
+
+        // Allocate rooms to courses with more students first.
+        sort(
+            slotCourses.begin(),
+            slotCourses.end(),
+            [&](int a, int b) {
+                if (studentCount[a] != studentCount[b]) {
+                    return studentCount[a] > studentCount[b];
+                }
+
+                return courses[a] < courses[b];
+            }
+        );
+
+        vector<bool> roomOccupied(numRooms, false);
+
+        for (int courseIndex : slotCourses) {
+            int bestRoom = -1;
+            int bestCapacity = numeric_limits<int>::max();
+
+            for (int r = 0; r < numRooms; r++) {
+                if (!roomOccupied[r] &&
+                    rooms[r].capacity >= studentCount[courseIndex] &&
+                    rooms[r].capacity < bestCapacity) {
+
+                    bestCapacity = rooms[r].capacity;
+                    bestRoom = r;
+                }
+            }
+
+            if (bestRoom != -1) {
+                assignedRoom[courseIndex] =
+                    rooms[bestRoom].name;
+
+                roomOccupied[bestRoom] = true;
+            }
+        }
+    }
+
+    // Display the timetable.
+    cout << "\nExam Timetable Schedule:\n";
+
+    cout << "Total Time Slots Required: "
+         << maxColour + 1 << "\n\n";
+
+    cout << "Course\tTime Slot\tRoom\tStudents\n";
+
+    for (int i = 0; i < numCourses; i++) {
+        cout << courses[i]
+             << "\tSlot " << colour[i] + 1
+             << "\t\t" << assignedRoom[i]
+             << "\t" << studentCount[i]
+             << endl;
+    }
+
+    cout << "\nNote: Unassigned means no available room "
+         << "had sufficient capacity.\n";
+
+    return 0;
+}
