@@ -1,0 +1,107 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+struct Item {
+    string name;
+    int weight;
+    int value;
+};
+
+int main() {
+    int n, capacity;
+
+    cout << "Enter number of relief supplies: ";
+    cin >> n;
+
+    if (n <= 0) {
+        cout << "Invalid number of items.\n";
+        return 1;
+    }
+
+    cout << "Enter truck capacity (kg): ";
+    cin >> capacity;
+
+    if (capacity < 0) {
+        cout << "Invalid capacity.\n";
+        return 1;
+    }
+
+    vector<Item> items(n);
+
+    cout << "Enter item name, weight and utility value:\n";
+
+    for (int i = 0; i < n; i++) {
+        cin >> items[i].name
+            >> items[i].weight
+            >> items[i].value;
+
+        if (items[i].weight < 0 || items[i].value < 0) {
+            cout << "Invalid weight or value.\n";
+            return 1;
+        }
+    }
+
+    vector<vector<long long>> dp(
+        n + 1,
+        vector<long long>(capacity + 1, 0)
+    );
+
+    // Build the Dynamic Programming table.
+    for (int i = 1; i <= n; i++) {
+        for (int w = 0; w <= capacity; w++) {
+
+            dp[i][w] = dp[i - 1][w];
+
+            if (items[i - 1].weight <= w) {
+                dp[i][w] = max(
+                    dp[i][w],
+                    items[i - 1].value +
+                    dp[i - 1][w - items[i - 1].weight]
+                );
+            }
+        }
+    }
+
+    // Reconstruct the selected items.
+    vector<int> selected;
+    int remainingCapacity = capacity;
+
+    for (int i = n; i >= 1; i--) {
+        if (dp[i][remainingCapacity] !=
+            dp[i - 1][remainingCapacity]) {
+
+            selected.push_back(i - 1);
+
+            remainingCapacity -= items[i - 1].weight;
+        }
+    }
+
+    reverse(selected.begin(), selected.end());
+
+    int totalWeight = 0;
+
+    for (int index : selected) {
+        totalWeight += items[index].weight;
+    }
+
+    cout << "\nMaximum Relief Utility: "
+         << dp[n][capacity] << endl;
+
+    cout << "Total Weight Carried: "
+         << totalWeight << " kg" << endl;
+
+    cout << "\nSelected Relief Supplies:\n";
+
+    if (selected.empty()) {
+        cout << "None\n";
+    } else {
+        for (int index : selected) {
+            cout << "- " << items[index].name << endl;
+        }
+    }
+
+    return 0;
+}
