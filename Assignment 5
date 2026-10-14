@@ -1,0 +1,82 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+using namespace std;
+
+struct Edge {
+    int to, weight;
+};
+
+int main() {
+    int V, E;
+
+    cout << "Enter number of vertices and edges: ";
+    cin >> V >> E;
+
+    vector<vector<Edge>> adj(V + 1);
+
+    cout << "Enter edges (from to weight):\n";
+    for (int i = 0; i < E; i++) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        adj[u].push_back({v, w});
+    }
+
+    int source, destination;
+    cout << "Enter source and destination: ";
+    cin >> source >> destination;
+
+    const long long INF = numeric_limits<long long>::max() / 4;
+
+    vector<long long> cost(V + 1, INF);
+    vector<int> nextVertex(V + 1, -1);
+
+    cost[destination] = 0;
+
+    // Vertices must be numbered in stage order.
+    // Every edge must go from a lower-numbered vertex to a higher one.
+    for (int u = destination - 1; u >= 1; u--) {
+        for (auto edge : adj[u]) {
+            if (edge.to > destination || cost[edge.to] == INF)
+                continue;
+
+            long long currentCost = edge.weight + cost[edge.to];
+
+            if (currentCost < cost[u]) {
+                cost[u] = currentCost;
+                nextVertex[u] = edge.to;
+            }
+        }
+    }
+
+    if (source == destination) {
+        cout << "Minimum Cost: 0\n";
+        cout << "Optimal Path: " << source << endl;
+        return 0;
+    }
+
+    if (cost[source] == INF) {
+        cout << "No path exists.\n";
+        return 0;
+    }
+
+    cout << "\nMinimum Cost: " << cost[source] << endl;
+
+    cout << "Optimal Path: ";
+    int current = source;
+    cout << current;
+
+    int steps = 0;
+
+    while (current != destination &&
+           nextVertex[current] != -1 &&
+           steps <= V) {
+        current = nextVertex[current];
+        cout << " -> " << current;
+        steps++;
+    }
+
+    cout << endl;
+
+    return 0;
+}
