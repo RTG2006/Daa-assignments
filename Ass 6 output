@@ -1,0 +1,15 @@
+Enter number of relief supplies: 4
+Enter truck capacity (kg): 10
+Enter item name, weight and utility value:
+Water 4 100
+Food 5 120
+Tents 7 150
+Meds 2 80
+
+Maximum Relief Utility: 230
+Total Weight Carried: 9 kg
+
+Selected Relief Supplies:
+
+⚬ Tents
+⚬ Meds
