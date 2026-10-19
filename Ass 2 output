@@ -1,0 +1,31 @@
+Enter number of movies: 3
+
+Enter details for Movie 1:
+Movie Name: Inception
+IMDb Rating: 8.8
+Release Year: 2010
+Watch Time (minutes): 148
+
+Enter details for Movie 2:
+Movie Name: The Matrix
+IMDb Rating: 8.7
+Release Year: 1999
+Watch Time (minutes): 136
+
+Enter details for Movie 3:
+Movie Name: Interstellar
+IMDb Rating: 8.6
+Release Year: 2014
+Watch Time (minutes): 169
+
+========== SORT OPTIONS ==========
+
+1. Sort by IMDb Rating
+2. Sort by Release Year
+3. Sort by Watch Time
+   Enter your choice: 1
+
+========== MOVIE LIST ==========
+Movie: Interstellar | IMDb: 8.6 | Year: 2014 | Watch Time: 169 min
+Movie: The Matrix | IMDb: 8.7 | Year: 1999 | Watch Time: 136 min
+Movie: Inception | IMDb: 8.8 | Year: 2010 | Watch Time: 148 min
