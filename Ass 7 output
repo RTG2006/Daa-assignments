@@ -1,0 +1,26 @@
+Enter number of courses: 4
+Enter course codes:
+CS101
+CS102
+CS103
+CS104
+Enter number of students: 3
+Enter student enrolments as:
+student_id number_of_courses course1 course2 ...
+S1 2 CS101 CS102
+S2 2 CS102 CS103
+S3 2 CS101 CS104
+Enter number of available classrooms: 2
+Enter room name and capacity:
+R1 50
+R2 30
+
+Exam Timetable Schedule:
+Total Time Slots Required: 2
+
+Course	Time Slot	Room	Students
+CS101	Slot 1		R2	2
+CS102	Slot 2		R2	2
+CS103	Slot 1		R1	1
+CS104	Slot 2		R1	1
+
