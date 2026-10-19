@@ -1,0 +1,31 @@
+Enter boat capacity (kg): 50
+Enter number of relief items: 3
+
+Enter details for Item 1:
+Item ID: 101
+Item Name: Medicine
+Weight (kg): 20
+Utility Value: 100
+Divisible? (1 = Yes, 0 = No): 0
+
+Enter details for Item 2:
+Item ID: 102
+Item Name: Food
+Weight (kg): 40
+Utility Value: 160
+Divisible? (1 = Yes, 0 = No): 1
+
+Enter details for Item 3:
+Item ID: 103
+Item Name: Tents
+Weight (kg): 20
+Utility Value: 60
+Divisible? (1 = Yes, 0 = No): 0
+
+========== SELECTED RELIEF SUPPLIES ==========
+Medicine -> 100% selected | Weight: 20.00 kg | Utility: 100.00
+Food -> 75.00% selected | Weight: 30.00 kg | Utility: 120.00
+
+========== FINAL RESULT ==========
+Total Weight Transported: 50.00 kg
+Maximum Utility Value: 220.00
